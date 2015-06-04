@@ -1,0 +1,19 @@
+date.b.string<-"2014.01.02"
+date.b.string<-"2014.12.30"
+#..............................................................................
+ra.input.path<-"./nora10_prec1d"
+ra.input.filename<-"prsum_"
+ra.output.histtmp<-"ra_hist_temp.dat"
+#..............................................................................
+ob.input.path<-"/lustre/mnt/cristianl/seNorge2/PREC1d/gridded_dataset"
+ob.input.filename<-"seNorge_v2_0_PREC1d_grid_"
+ob.output.histtmp<-"ob_hist_temp.dat"
+#..............................................................................
+precipitation.dailydef<-0.5 #mm
+precipitation.bins.maxvalue<-200
+#..............................................................................
+ks.alpha<-0.05
+#..............................................................................
+score.output.pdf<-"pdfoverscore.nc"
+score.output.ksD<-"ksd.nc"
+score.output.ksT<-"kstest.nc"
