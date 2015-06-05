@@ -5,7 +5,8 @@ create.freq.hist<-function(date.begin,date.end,
                            input.path,input.filename,
                            input.filetype, hist.file,
                            hist.breaks,
-                           lower.bound=NULL)
+                           lower.bound=NULL,
+                           filter.scale=1)
 {
 #..............................................................................
   require(ncdf)
@@ -98,6 +99,11 @@ create.freq.hist<-function(date.begin,date.end,
     print(file)
     r<-raster(file)
     data<-getValues(r)
+    if (filter.scale!=1) { 
+      r.filt<-focal(r,w=matrix(1,nc=filter.scale,nr=filter.scale),fun=mean,na.rm=T)
+      r<-r.filt
+      rm(r.filt)
+    }
     storage.mode(data)<-"numeric"
     mask<-which(!is.na(data) & data>=lower.bound)
     for (i in mask) {
@@ -108,7 +114,13 @@ create.freq.hist<-function(date.begin,date.end,
   }
   #
   f <- file(hist.file, "wb")
-  writeBin(as.numeric(c(input.filetype,nx,ny,dx,dy,ex.xmin,ex.ymin,ex.xmax,ex.ymax,n.r,n.bins)),f,size=4)
+  writeBin(as.numeric(c(input.filetype,                  # 1
+                        nx,ny,dx,dy,                     # 2 3 4 5
+                        ex.xmin,ex.ymin,ex.xmax,ex.ymax, # 6 7 8 9 
+                        n.r,                             # 10
+                        n.bins,                          # 11
+                        filter.scale)),                  # 12
+                        f,size=4) 
   writeBin(as.numeric(c(length(hist.breaks),hist.breaks)),f,size=4)
   for (i in 1:n.r) {
     pos.no0<-which(bin.mat[i,1:n.bins]!=0)
@@ -123,16 +135,69 @@ create.freq.hist<-function(date.begin,date.end,
 } # end of function create.freq.hist
 
 #
-read.freq.hist<-function(hist.file)
+read.freq.hist.header<-function(f)
 {
-  if (missing(hist.file)) stop("read.freq.hist: must provide a file name")
-  if (!file.exists(hist.file)) stop("read.freq.hist: file not found")
-  f<-file(hist.file,"rb")
   head<-readBin(f,numeric(),size=4,n=9)
   hist.n<-readBin(f,numeric(),size=4,n=1)
   breaks<-readBin(f,numeric(),size=4,n=hist.n)
   nc<-head[9]
   nb<-head[10]
+  return(list(filetype=head[1],
+              nx=head[2],ny=head[3],dx=head[4],dy=head[5],
+              xmin=head[6],ymin=head[7],xmax=head[8],ymax=head[9],
+              ncell=head[10],
+              n.bins=head[11],
+              filter.scale=head[12],
+              hist.breaks=breaks,
+              bin.vec=NULL,
+              bin.mat=NULL,
+              eof=NULL))
+} # end of function read.freq.hist.header
+
+#
+read.freq.hist.next<-function(f,hist.header)
+{
+  aux<-readBin(f,numeric(),size=4,n=4)
+  i<-aux[1]
+  if (i==0) {
+    return(list(filetype=hist.header$filetype,
+                nx=hist.header$nx,ny=hist.header$ny,
+                dx=hist.header$dx,dy=hist.header$dy,
+                xmin=hist.header$xmin,ymin=hist.header$ymin,
+                xmax=hist.header$xamx,ymax=hist.header$ymax,
+                ncell=hist.header$ncell,n.bins=hist.header$n.bins,
+                hist.breaks=hist.header$hist.breaks,
+                filter.scale=hist.header$filter.scale,
+                bin.vec=NULL,
+                bin.mat=NULL,
+                eof=T))
+  }
+  vec<-vector(mode="numeric",length=hist.header$n.bins)
+  vec[]<-0
+  n.n0<-aux[4]
+  pos.no0<-readBin(f,numeric(),size=4,n=n.n0)
+  val.no0<-readBin(f,numeric(),size=4,n=n.n0)
+  vec[pos.no0]<-val.no0
+  return(list(filetype=hist.header$filetype,
+              nx=hist.header$nx,ny=hist.header$ny,
+              dx=hist.header$dx,dy=hist.header$dy,
+              xmin=hist.header$xmin,ymin=hist.header$ymin,
+              xmax=hist.header$xamx,ymax=hist.header$ymax,
+              ncell=hist.header$ncell,n.bins=hist.header$n.bins,
+              hist.breaks=hist.header$hist.breaks,
+              filter.scale=hist.header$filter.scale,
+              bin.vec=vec,
+              bin.mat=NULL,
+              eof=F))
+} # end of function read.freq.hist.next
+
+#
+read.freq.hist.tot<-function(hist.file)
+{
+  if (missing(hist.file)) stop("read.freq.hist: must provide a file name")
+  if (!file.exists(hist.file)) stop("read.freq.hist: file not found")
+  f<-file(hist.file,"rb")
+  hist<-read.freq.hist.header(f)
   aux.bin.mat<-matrix(nrow=nc,ncol=nb)
   aux.bin.mat[]<-0
   killerloop<-T
@@ -153,8 +218,14 @@ read.freq.hist<-function(hist.file)
   return(list(filetype=head[1],
               nx=head[2],ny=head[3],dx=head[4],dy=head[5],
               xmin=head[6],ymin=head[7],xmax=head[8],ymax=head[9],
-              ncell=head[9],n.bins=head[10],
+              ncell=head[10],
+              n.bins=head[11],
+              filter.scale=head[12],
               hist.breaks=breaks,
-              bin.mat=aux.bin.mat))
+              bin.vec=NULL,
+              bin.mat=aux.bin.mat,
+              eof=NULL)
 } # end of function read.freq.hist
+
+
 
