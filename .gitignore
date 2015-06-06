@@ -38,5 +38,5 @@
 
 # Temporary files    #
 ######################
-  *.swp
+  .*.swp
 
