@@ -7,6 +7,10 @@ create.hist.freq<-function(date.begin,date.end,
                            hist.breaks,
                            lower.bound=NULL,
                            filter.scale=1)
+# filetypes:
+# 1: NORA10
+# 2: seNorge2
+# ---
 # breaks[1] must be strictly > min value expected in data; 
 # breaks[last] must be strictly < min value expected in data;
 # breaks[n] a vector giving the breakpoints between histogram cells
@@ -37,11 +41,7 @@ create.hist.freq<-function(date.begin,date.end,
   # read (common) grid parameters
   flag.filefound<-F
   for (d in 1:nday) {
-    if (input.filetype==1) { 
-      file<-paste(input.path,"/",yyyymm.v[d],"/",input.filename,yyyymmdd.v[d],".nc",sep="")
-    } else if (input.filetype==2) { 
-      file<-paste(input.path,"/",yyyymm.v[d],"/",input.filename,yyyymmdd.v[d],"_",yyyymmdd.v[d],".nc",sep="")
-    }
+    file<-paste(input.path,"/",yyyymm.v[d],"/",input.filename,yyyymmdd.v[d],"_",yyyymmdd.v[d],".nc",sep="")
     if (file.exists(file)) {
       flag.filefound<-T
       break
@@ -62,6 +62,8 @@ create.hist.freq<-function(date.begin,date.end,
     ex.ymax<-max(nc$dim$northing$vals)+dy/2
     nx<-nc$dim$easting$len
     ny<-nc$dim$northing$len
+    aux<-att.get.ncdf(nc,"layer","projection")
+    projstr<-aux$value
   } else if (input.filetype==2) {
     dx<-nc$dim$X$vals[2]-nc$dim$X$vals[1]
     ex.xmin<-min(nc$dim$X$vals)-dx/2
@@ -71,8 +73,11 @@ create.hist.freq<-function(date.begin,date.end,
     ex.ymax<-max(nc$dim$Y$vals)+dy/2
     nx<-nc$dim$X$len
     ny<-nc$dim$Y$len
+    aux<-att.get.ncdf(nc,"UTM_Zone_33","proj4")
+    projstr<-aux$value
   }
   close.ncdf(nc)
+  nchar.projstr<-nchar(projstr)
 # Define raster variable "r"
   r <-raster(ncol=nx, nrow=ny,
              xmn=ex.xmin, xmx=ex.xmax,
@@ -91,23 +96,19 @@ create.hist.freq<-function(date.begin,date.end,
   # read reanalysis
   bin.mat[]<-0
   for (d in 1:nday) {
-    if (input.filetype==1) { 
-      file<-paste(input.path,"/",yyyymm.v[d],"/",input.filename,yyyymmdd.v[d],".nc",sep="")
-    } else if (input.filetype==2) { 
-      file<-paste(input.path,"/",yyyymm.v[d],"/",input.filename,yyyymmdd.v[d],"_",yyyymmdd.v[d],".nc",sep="")
-    }
+    file<-paste(input.path,"/",yyyymm.v[d],"/",input.filename,yyyymmdd.v[d],"_",yyyymmdd.v[d],".nc",sep="")
     if (!file.exists(file)) next
     print(file)
     nc<-open.ncdf(file)
     data<-get.var.ncdf(nc)
     close.ncdf(nc)
     r[]<-t(data)
-    data<-getValues(r)
     if (filter.scale!=1) { 
       r.filt<-focal(r,w=matrix(1,nc=filter.scale,nr=filter.scale),fun=mean,na.rm=T)
       r<-r.filt
       rm(r.filt)
     }
+    data<-getValues(r)
     storage.mode(data)<-"numeric"
     mask<-which(!is.na(data) & data>=lower.bound)
     for (i in mask) {
@@ -122,16 +123,22 @@ create.hist.freq<-function(date.begin,date.end,
                         nx,ny,dx,dy,                     # 2 3 4 5
                         ex.xmin,ex.ymin,ex.xmax,ex.ymax, # 6 7 8 9 
                         n.r,                             # 10
-                        filter.scale,                    # 11
-                        n.bins)),                        # 12
-                        f,size=4) 
+                        filter.scale                     # 11
+                        )),        
+                        f,size=4)
+  writeBin(as.numeric(nchar.projstr),f,size=4) 
+  writeChar(projstr,nchars=nchar.projstr,con=f,eos=NULL) 
+  writeBin(as.numeric(n.bins),f,size=4) 
   writeBin(as.numeric(c(length(hist.breaks),hist.breaks)),f,size=4)
   for (i in 1:n.r) {
     pos.no0<-which(bin.mat[i,1:n.bins]!=0)
     val.no0<-bin.mat[i,pos.no0]
     n.no0<-length(pos.no0)
-    if (n.no0==0) next
-    writeBin(as.numeric(c(i,rowgrid[i],colgrid[i],n.no0,pos.no0,val.no0)),f,size=4)
+    if (n.no0==0) {
+      writeBin(as.numeric(c(i,rowgrid[i],colgrid[i],n.no0)),f,size=4)
+    } else {
+      writeBin(as.numeric(c(i,rowgrid[i],colgrid[i],n.no0,pos.no0,val.no0)),f,size=4)
+    }
   }
   writeBin(as.numeric(c(0,0,0,0)),f,size=4)
   close(f)
@@ -141,7 +148,10 @@ create.hist.freq<-function(date.begin,date.end,
 #
 read.hist.freq.header<-function(f)
 {
-  head<-readBin(f,numeric(),size=4,n=9)
+  head<-readBin(f,numeric(),size=4,n=11)
+  nchar<-readBin(f,numeric(),size=4,n=1)
+  proj<-readChar(f,nchars=nchar)
+  nbins<-readBin(f,numeric(),size=4,n=1)
   hist.n<-readBin(f,numeric(),size=4,n=1)
   breaks<-readBin(f,numeric(),size=4,n=hist.n)
   return(list(file.type=head[1], file.eof=NULL,
@@ -149,7 +159,8 @@ read.hist.freq.header<-function(f)
               grid.xmn=head[6],grid.ymn=head[7],grid.xmx=head[8],grid.ymx=head[9],
               grid.ncell=head[10],
               grid.filterscale=head[11],
-              hist.nbins=head[12],
+              grid.proj=proj,
+              hist.nbins=nbins,
               hist.breaks=breaks,
               hist.freq.vec=NULL,
               hist.freq.mat=NULL))
@@ -159,8 +170,8 @@ read.hist.freq.header<-function(f)
 read.hist.freq.next<-function(f,hist.header)
 {
   aux<-readBin(f,numeric(),size=4,n=4)
-  i<-aux[1]
-  if (i==0) {
+  # eof
+  if (aux[1]==0) {
     return(list(file.type=hist.header$file.type, file.eof=T,
                 grid.nx=hist.header$grid.nx,grid.ny=hist.header$grid.ny,
                 grid.dx=hist.header$grid.dx,grid.dy=hist.header$grid.dy,
@@ -168,17 +179,22 @@ read.hist.freq.next<-function(f,hist.header)
                 grid.xmx=hist.header$grid.xmx,grid.ymx=hist.header$grid.ymx,
                 grid.ncell=hist.header$grid.ncell,
                 grid.filterscale=hist.header$grid.filterscale,
+                grid.proj=hist.header$grid.proj,
                 hist.nbins=hist.header$hist.nbins,
                 hist.breaks=hist.header$hist.breaks,
                 hist.freq.vec=NULL,
                 hist.freq.mat=NULL))
   }
-  vec<-vector(mode="numeric",length=hist.header$n.bins)
-  vec[]<-0
-  n.n0<-aux[4]
-  pos.no0<-readBin(f,numeric(),size=4,n=n.n0)
-  val.no0<-readBin(f,numeric(),size=4,n=n.n0)
-  vec[pos.no0]<-val.no0
+  # not eof
+  vec<-vector(mode="numeric",length=hist.header$hist.nbins)
+  vec[]<-NA
+  n.no0<-aux[4]
+  if (n.no0!=0) {
+    vec[]<-0
+    pos.no0<-readBin(f,numeric(),size=4,n=n.no0)
+    val.no0<-readBin(f,numeric(),size=4,n=n.no0)
+    vec[pos.no0]<-val.no0
+  }
   return(list(file.type=hist.header$file.type, file.eof=F,
               grid.nx=hist.header$grid.nx,grid.ny=hist.header$grid.ny,
               grid.dx=hist.header$grid.dx,grid.dy=hist.header$grid.dy,
@@ -186,6 +202,7 @@ read.hist.freq.next<-function(f,hist.header)
               grid.xmx=hist.header$grid.xmx,grid.ymx=hist.header$grid.ymx,
               grid.ncell=hist.header$grid.ncell,
               grid.filterscale=hist.header$grid.filterscale,
+              grid.proj=hist.header$grid.proj,
               hist.nbins=hist.header$hist.nbins,
               hist.breaks=hist.header$hist.breaks,
               hist.freq.vec=vec,

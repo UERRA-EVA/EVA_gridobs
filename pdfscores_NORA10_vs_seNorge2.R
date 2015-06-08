@@ -1,0 +1,11 @@
+library(raster)
+source("config_list.r")
+source("freqhist_function.R")
+source("pdfscores.R")
+source("output_functions.R")
+#
+pdfscore<-pdf.overlapping.score.grid.memsaver(hist.file1=ra.output.histtmp,hist.file2=ob.output.histtmp)
+print(pdfscore)
+aux<-plot.pdf.overlapping.score(header=pdfscore$hist.header,pdfscore=pdfscore$pdfscore,file.out=score.output.pdf.png)
+#
+q()

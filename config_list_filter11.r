@@ -7,7 +7,7 @@ ra.output.histtmp<-"/home/cristianl/histograms/nora10_PREC1d_hist_2014.dat"
 #..............................................................................
 ob.input.path<-"/lustre/mnt/cristianl/seNorge2/PREC1d/gridded_dataset"
 ob.input.filename<-"seNorge_v2_0_PREC1d_grid_"
-ob.output.histtmp<-"/home/cristianl/histograms/seNorge2_PREC1d_hist_2014.dat"
+ob.output.histtmp<-"/home/cristianl/histograms/seNorge2_PREC1d_hist_filter11_2014.dat"
 #..............................................................................
 precipitation.dailydef<-0.5 #mm
 precipitation.breaks<-c(0,1:30,50,75,100,150,200,500)
@@ -17,5 +17,3 @@ ks.alpha<-0.05
 score.output.pdf<-"pdfoverscore.nc"
 score.output.ksD<-"ksd.nc"
 score.output.ksT<-"kstest.nc"
-#
-score.output.pdf.png<-"pdfoverscore.png"

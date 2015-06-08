@@ -1,0 +1,17 @@
+library(ncdf)
+library(raster)
+#
+source("./config_list.r")
+source("./freqhist_function.R")
+#..............................................................................
+fh<-create.hist.freq(date.begin=date.b.string,
+                     date.end=date.e.string,
+                     input.path=ra.input.path,
+                     input.filename=ra.input.filename,
+                     input.filetype=1,
+                     hist.file=ra.output.histtmp,
+                     hist.breaks=precipitation.breaks,
+                     lower.bound=precipitation.dailydef,
+                     filter.scale=1)
+#..............................................................................
+quit(status=0)
