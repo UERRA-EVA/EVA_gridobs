@@ -1,12 +1,12 @@
-# 'create.hist.freq
-# 'read.hist.freq
+# 'create.hist.prec.freq
+# 'read.hist.prec.freq
 #
-create.hist.freq<-function(date.begin,date.end,
-                           input.path,input.filename,
-                           input.filetype, hist.file,
-                           hist.breaks,
-                           lower.bound=NULL,
-                           filter.scale=1)
+create.hist.prec.freq<-function(date.begin,date.end,
+                                input.path,input.filename,
+                                input.filetype, hist.file,
+                                hist.breaks,
+                                lower.bound=NULL,
+                                filter.scale=1)
 # filetypes:
 # 1: NORA10
 # 2: seNorge2
@@ -143,10 +143,10 @@ create.hist.freq<-function(date.begin,date.end,
   writeBin(as.numeric(c(0,0,0,0)),f,size=4)
   close(f)
   return(T)
-} # end of function create.hist.freq
+} # end of function create.hist.prec.freq
 
 #
-read.hist.freq.header<-function(f)
+read.hist.prec.freq.header<-function(f)
 {
   head<-readBin(f,numeric(),size=4,n=11)
   nchar<-readBin(f,numeric(),size=4,n=1)
@@ -164,10 +164,10 @@ read.hist.freq.header<-function(f)
               hist.breaks=breaks,
               hist.freq.vec=NULL,
               hist.freq.mat=NULL))
-} # end of function read.hist.freq.header
+} # end of function read.hist.prec.freq.header
 
 #
-read.hist.freq.next<-function(f,hist.header)
+read.hist.prec.freq.next<-function(f,hist.header)
 {
   aux<-readBin(f,numeric(),size=4,n=4)
   # eof
@@ -207,7 +207,7 @@ read.hist.freq.next<-function(f,hist.header)
               hist.breaks=hist.header$hist.breaks,
               hist.freq.vec=vec,
               hist.freq.mat=NULL))
-} # end of function read.hist.freq.next
+} # end of function read.hist.prec.freq.next
 
 #
 #read.hist.freq.tot<-function(hist.file)
