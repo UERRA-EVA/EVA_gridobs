@@ -30,10 +30,9 @@ fh<-create.hist.prec.freq(date.begin=date.b.string,
                           input.path=ra.input.path,
                           input.filename=ra.input.filename,
                           input.filetype=1,
-                          hist.file=ra.output.histtmp,
+                          hist.file=ra.hist.prec,
                           hist.breaks=precipitation.breaks,
-                          lower.bound=precipitation.dailydef,
-                          filter.scale=ob.filter.scale)
+                          lower.bound=precipitation.dailydef)
 #..............................................................................
 print("Exit with Success")
 quit(status=0)

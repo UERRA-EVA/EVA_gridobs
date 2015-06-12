@@ -3,11 +3,9 @@ plot.pdf.overlapping.score<-function(header,pdfscore,file.out)
 {
   require(raster)
 #
-  print("1")
   pdfbreaks<-seq(0,1,by=0.1)
   pdfcols<-c("gray",rev(rainbow(9)))
 #
-  print("2")
   r <-raster(ncol=header$grid.nx, nrow=header$grid.ny,
              xmn=header$grid.xmn, xmx=header$grid.xmx,
              ymn=header$grid.ymn, ymx=header$grid.ymx,

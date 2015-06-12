@@ -38,12 +38,19 @@ precipitation.breaks<-c(0,1:30,50,75,100,150,200,500)
 ks.alpha<-0.05
 #..............................................................................
 # -- Output --
+main.output.path<-"/home/cristianl/EVA_gridobs_output"
 # histograms (binary files)
-ra.output.hist<-"/home/cristianl/histograms/nora10_PREC1d_hist_2014.dat"
-ob.output.hist<-"/home/cristianl/histograms/seNorge2_PREC1d_hist_2014.dat"
+ra.hist.prec<-"nora10_PREC1d_hist_2014.dat"
+ob.hist.prec<-"seNorge2_PREC1d_hist_2014.dat"
 # score indexes (netcdf)
-score.output.pdf<-"pdfoverscore.nc"
-score.output.ksD<-"ksd.nc"
-score.output.ksT<-"kstest.nc"
+score.output.mode.diff.nc<-"nora10_seNorge2_modediff.nc"
+score.output.mode.RelErr.nc<-"nora10_seNorge2_moderelerr.nc"
+score.output.pdf.nc<-"nora10_seNorge2_pdfoverscore.nc"
+score.output.ksD.nc<-"nora10_seNorge2_ksd.nc"
+score.output.ksT.nc<-"nora10_seNorge2_kstest.nc"
 # score indexes (graphic)
-score.output.pdf.png<-"pdfoverscore.png"
+score.output.mode.diff.png<-"nora10_seNorge2_modediff.png"
+score.output.mode.RelErr.png<-"nora10_seNorge2_moderelerr.png"
+score.output.pdf.png<-"nora10_seNorge2_pdfoverscore.png"
+score.output.ksD.png<-"nora10_seNorge2_ksd.png"
+score.output.ksT.png<-"nora10_seNorge2_kstest.png"
