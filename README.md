@@ -39,8 +39,8 @@ Running the programs (examples):
 1. Edit configuration file according to the instructions reported in .../etc/config\_list.r
 2. Create histograms approximating the frequency distribution of precipitation values
   * for the reanalysis
- 
-   ```
+
+    ```
     R --vanilla your_configuration_file < prec_freqhist_reanalysis.R
     ```
   * for the gridded observational dataset (is it possible to aggregate the data to a coarser resolution)
