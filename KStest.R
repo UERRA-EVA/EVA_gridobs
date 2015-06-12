@@ -23,18 +23,24 @@ if (!file.exists(config.file)) {
 # read config parameters
 source(config.file)
 # load external functions
-source(paste(local.path.to.extlib,"/freqhist_functions.R",sep=""))
-source(paste(local.path.to.extlib,"/pdfscores_functions.R",sep=""))
-source(paste(local.path.to.extlib,"/output_functions.R",sep=""))
+source(paste(local.path.to.extlib,"/functions/freqhist_functions.R",sep=""))
+source(paste(local.path.to.extlib,"/functions/pdfscores_functions.R",sep=""))
+source(paste(local.path.to.extlib,"/functions/output_functions.R",sep=""))
 #..............................................................................
+# set input file names
+f.ra.hist.prec<-paste(main.output.path,"/",ra.hist.prec,sep="")
+f.ob.hist.prec<-paste(main.output.path,"/",ob.hist.prec,sep="")
 # set output file names
-f.score.output.pdf.nc<-paste(main.output.path,"/",score.output.pdf.nc,sep="")
-f.score.output.pdf.png<-paste(main.output.path,"/",score.output.pdf.png,sep="")
+f.score.output.ksD.nc<-paste(main.output.path,"/",score.output.ksD.nc,sep="")
+f.score.output.ksT.nc<-paste(main.output.path,"/",score.output.ksT.nc,sep="")
+f.score.output.ksD.png<-paste(main.output.path,"/",score.output.ksD.png,sep="")
+f.score.output.ksT.png<-paste(main.output.path,"/",score.output.ksT.png,sep="")
 # compute the score
-pdfscore<-pdf.overlapping.score.grid.memsaver(hist.file1=ra.hist.prec,hist.file2=ob.hist.prec)
+KStest<-ks.test.wilks.grid.memsaver(hist.file1=f.ra.hist.prec,hist.file2=f.ob.hist.prec,alpha=ks.alpha)
 # output session
-aux<-write.score(header=pdfscore$hist.header,score=pdfscore$pdfscore,file.out=f.score.output.pdf.nc)
-aux<-plot.pdf.overlapping.score(header=pdfscore$hist.header,pdfscore=pdfscore$pdfscore,file.out=f.score.output.pdf.png)
+aux<-write.score(header=KStest$hist.header,score=KStest$Ds,file.out=f.score.output.ksD.nc)
+aux<-write.score(header=KStest$hist.header,score=KStest$Test,file.out=f.score.output.ksT.nc)
+#aux<-plot.pdf.overlapping.score(header=pdfscore$hist.header,pdfscore=pdfscore$pdfscore,file.out=f.score.output.pdf.png)
 # exit
 print("Exit with Success")
 quit(status=0)

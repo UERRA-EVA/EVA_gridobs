@@ -7,7 +7,7 @@ date.b.string<-"2014.01.02"
 date.e.string<-"2014.12.30"
 #..............................................................................
 # local path to external libraries
-local.path.to.extlib<-""
+local.path.to.extlib<-"/disk1/projects/EVA_gridobs"
 #.......................i.......................................................
 # -- Re-analysis input dataset --
 # netcdf input files are expected to be:
@@ -38,7 +38,7 @@ precipitation.breaks<-c(0,1:30,50,75,100,150,200,500)
 ks.alpha<-0.05
 #..............................................................................
 # -- Output --
-main.output.path<-"/home/cristianl/EVA_gridobs_output"
+main.output.path<-"/disk1/EVA_gridobs_output"
 # histograms (binary files)
 ra.hist.prec<-"nora10_PREC1d_hist_2014.dat"
 ob.hist.prec<-"seNorge2_PREC1d_hist_2014.dat"

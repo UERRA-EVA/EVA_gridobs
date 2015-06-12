@@ -1,3 +1,21 @@
+
+#
+write.score<-function(header,score,file.out)
+{
+  require(raster)
+#
+  r <-raster(ncol=header$grid.nx, nrow=header$grid.ny,
+             xmn=header$grid.xmn, xmx=header$grid.xmx,
+             ymn=header$grid.ymn, ymx=header$grid.ymx,
+             crs=header$grid.proj)
+  r[]<-NA
+  r[]<-score
+#
+  rnc<-writeRaster(r,filename=file.out,format="CDF",overwrite=TRUE)
+#
+  return() 
+} # end function write.score
+
 #
 plot.pdf.overlapping.score<-function(header,pdfscore,file.out)
 {
@@ -22,4 +40,4 @@ plot.pdf.overlapping.score<-function(header,pdfscore,file.out)
   dev.off()
 # write output files
   return() 
-}
+} # end function plot.pdf.overlapping.score

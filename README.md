@@ -52,7 +52,10 @@ Running the programs (examples):
 3. Compute the difference between modes and relative precipitation biases:
  
   ```
-  R --vanilla your_configuration_file < modescores.R 
+  R --vanilla your_configuration_file < modediff.R 
+  ```
+  ```
+  R --vanilla your_configuration_file < modeRelErrscores.R 
   ```
 4. Compute the PDF overlapping skill-score:
  
