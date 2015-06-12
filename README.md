@@ -15,6 +15,7 @@ Developed and tested for daily precipitation
   - [x] overlapping skill-score (see [1], Eq.(1))
 - [x] two-sample Kolmogorov-Smirnov (K-S) test, or Smirnov test (see [2], Eqs (5.17-18)
 - [ ] Fractional skill-score
+- [ ] Optical-flow
 
 [1] Mayer, S. et al. Identifying added value in high-resolution climate simulations over Scandinavia. Tellus A, [S.l.], feb. 2015. ISSN 1600-0870. Available at: <http://www.tellusa.net/index.php/tellusa/article/view/24941CachedStephanie>. Date accessed: 12 Jun. 2015. doi:http://dx.doi.org/10.3402/tellusa.v67.24941.)
 
