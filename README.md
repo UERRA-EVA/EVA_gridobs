@@ -39,22 +39,27 @@ Running the programs (examples):
 1. Edit configuration file according to the instructions reported in .../etc/config\_list.r
 2. Create histograms approximating the frequency distribution of precipitation values
   * for the reanalysis
-    ```
+ 
+   ```
     R --vanilla your_configuration_file < prec_freqhist_reanalysis.R
     ```
   * for the gridded observational dataset (is it possible to aggregate the data to a coarser resolution)
+ 
     ```
     R --vanilla your_configuration_file < prec_freqhist_gridobs.R
     ```
 3. Compute the difference between modes and relative precipitation biases:
+ 
   ```
   R --vanilla your_configuration_file < modescores.R 
   ```
 4. Compute the PDF overlapping skill-score:
+ 
   ```
   R --vanilla your_configuration_file < pdfscores.R 
   ```
 5. K-S test:
+ 
   ```
   R --vanilla your_configuration_file < KSscores.R 
   ```
