@@ -29,6 +29,10 @@ ob.input.filename<-"seNorge_v2_0_PREC1d_grid_"
 # spatial aggregation parameter
 ob.filter.scale<-61
 #..............................................................................
+# -- Mask file
+ob.mask.file<-"/home/cristianl/seNorge2/geoinfo/seNorge2_dem_UTM33.nc"
+ob.mask.filetype<-2
+#..............................................................................
 # -- Precipitation parameters --
 precipitation.dailydef<-0.5 #mm
 # Precipitaton breaks - rules:

@@ -1,12 +1,48 @@
+# 'get.info.from.nc
 # 'create.hist.prec.freq
+# 'read.hist.prec.freq.header
 # 'read.hist.prec.freq
-#
+# 'read.hist.prec.freq.next
+
+get.info.from.nc<-function(nc,filetype) {
+    if (filetype==1) {
+      dx<-nc$dim$easting$vals[2]-nc$dim$easting$vals[1]
+      ex.xmin<-min(nc$dim$easting$vals)-dx/2
+      ex.xmax<-max(nc$dim$easting$vals)+dx/2
+      dy<-nc$dim$northing$vals[2]-nc$dim$northing$vals[1]
+      ex.ymin<-min(nc$dim$northing$vals)-dy/2
+      ex.ymax<-max(nc$dim$northing$vals)+dy/2
+      nx<-nc$dim$easting$len
+      ny<-nc$dim$northing$len
+      aux<-att.get.ncdf(nc,"layer","projection")
+      projstr<-aux$value
+    } else if (filetype==2) {
+      dx<-nc$dim$X$vals[2]-nc$dim$X$vals[1]
+      ex.xmin<-min(nc$dim$X$vals)-dx/2
+      ex.xmax<-max(nc$dim$X$vals)+dx/2
+      dy<-nc$dim$Y$vals[2]-nc$dim$Y$vals[1]
+      ex.ymin<-min(nc$dim$Y$vals)-dy/2
+      ex.ymax<-max(nc$dim$Y$vals)+dy/2
+      nx<-nc$dim$X$len
+      ny<-nc$dim$Y$len
+      aux<-att.get.ncdf(nc,"UTM_Zone_33","proj4")
+      projstr<-aux$value
+    }
+    return(list(dx=dx,dy=dy,
+                nx=nx,ny=ny,
+                ex.xmin=ex.xmin,ex.xmax=ex.xmax,
+                ey.ymin=ey.ymin,ex.ymax=ex.ymax,
+                projstr=projstr))
+} # end function get.info.from.nc
+
 create.hist.prec.freq<-function(date.begin,date.end,
                                 input.path,input.filename,
                                 input.filetype, hist.file,
                                 hist.breaks,
                                 lower.bound=NULL,
-                                filter.scale=1)
+                                filter.scale=1,
+                                mask.file=NULL,
+                                mask.filetype=NULL)
 # filetypes:
 # 1: NORA10
 # 2: seNorge2
@@ -48,40 +84,35 @@ create.hist.prec.freq<-function(date.begin,date.end,
     }
   }
   #check
-  if (!flag.filefound) return(F) 
+  if (!flag.filefound) return(F)
+  # read mask file
+  mask.flag<-F
+  if (!is.null(mask.file) & file.exists(mask.file)) {
+    mask.flag<-T
+    nc <- open.ncdf(mask.file)
+    nc.info<-get.info.from.nc(nc,mask.filetype)
+    close.ncdf(nc)
+# Define raster variable "r"
+    r.mask <-raster(ncol=nc.info$nx, nrow=nc.info$ny,
+                    xmn=nc.info$ex.xmin, xmx=nc.info$ex.xmax,
+                    ymn=nc.info$ex.ymin, ymx=nc.info$ex.ymax
+                    crs=projstr)
+    r.mask[]<-NA
+    data<-get.var.ncdf(nc)
+    close.ncdf(nc)
+    r.mask[]<-t(data)
+  }
   #ext<-error_exit(paste("Reanalysis files not found \n",sep=""))
   # set raster files for reanalysis data (ra) and gridded observations (ob)
   nc <- open.ncdf(file)
-#  data <- get.var.ncdf(nc)
-  if (input.filetype==1) {
-    dx<-nc$dim$easting$vals[2]-nc$dim$easting$vals[1]
-    ex.xmin<-min(nc$dim$easting$vals)-dx/2
-    ex.xmax<-max(nc$dim$easting$vals)+dx/2
-    dy<-nc$dim$northing$vals[2]-nc$dim$northing$vals[1]
-    ex.ymin<-min(nc$dim$northing$vals)-dy/2
-    ex.ymax<-max(nc$dim$northing$vals)+dy/2
-    nx<-nc$dim$easting$len
-    ny<-nc$dim$northing$len
-    aux<-att.get.ncdf(nc,"layer","projection")
-    projstr<-aux$value
-  } else if (input.filetype==2) {
-    dx<-nc$dim$X$vals[2]-nc$dim$X$vals[1]
-    ex.xmin<-min(nc$dim$X$vals)-dx/2
-    ex.xmax<-max(nc$dim$X$vals)+dx/2
-    dy<-nc$dim$Y$vals[2]-nc$dim$Y$vals[1]
-    ex.ymin<-min(nc$dim$Y$vals)-dy/2
-    ex.ymax<-max(nc$dim$Y$vals)+dy/2
-    nx<-nc$dim$X$len
-    ny<-nc$dim$Y$len
-    aux<-att.get.ncdf(nc,"UTM_Zone_33","proj4")
-    projstr<-aux$value
-  }
+  nc.info<-get.info.from.nc(nc,mask.filetype)
   close.ncdf(nc)
-  nchar.projstr<-nchar(projstr)
+  nchar.projstr<-nchar(nc.info$projstr)
 # Define raster variable "r"
-  r <-raster(ncol=nx, nrow=ny,
-             xmn=ex.xmin, xmx=ex.xmax,
-             ymn=ex.ymin, ymx=ex.ymax)
+  r <-raster(ncol=nc.info$nx, nrow=nc.info$ny,
+             xmn=nc.info$ex.xmin, xmx=nc.info$ex.xmax,
+             ymn=nc.info$ex.ymin, ymx=nc.info$ex.ymax,
+             crs=projstr)
   r[]<-NA
   n.r<-ncell(r)
   # extract information from the grid
@@ -108,6 +139,11 @@ create.hist.prec.freq<-function(date.begin,date.end,
       r<-r.filt
       rm(r.filt)
     }
+    if (mask.flag) {
+      r.aux<-mask(r,r.mask)
+      r<-r.aux
+      rm(r.aux)
+    }
     data<-getValues(r)
     storage.mode(data)<-"numeric"
     mask<-which(!is.na(data) & data>=lower.bound)
@@ -120,14 +156,16 @@ create.hist.prec.freq<-function(date.begin,date.end,
   # Output
   f <- file(hist.file, "wb")
   writeBin(as.numeric(c(input.filetype,                  # 1
-                        nx,ny,dx,dy,                     # 2 3 4 5
-                        ex.xmin,ex.ymin,ex.xmax,ex.ymax, # 6 7 8 9 
+                        nc.info$nx,nc.info$ny,           # 2 3
+                        nc.info$dx,nc.info$dy,           # 4 5
+                        nc.info$ex.xmin,nc.info$ex.ymin, # 6 7
+                        nc.info$ex.xmax,nc.info$ex.ymax, # 8 9 
                         n.r,                             # 10
                         filter.scale                     # 11
                         )),        
                         f,size=4)
   writeBin(as.numeric(nchar.projstr),f,size=4) 
-  writeChar(projstr,nchars=nchar.projstr,con=f,eos=NULL) 
+  writeChar(nc.info$projstr,nchars=nchar.projstr,con=f,eos=NULL) 
   writeBin(as.numeric(n.bins),f,size=4) 
   writeBin(as.numeric(c(length(hist.breaks),hist.breaks)),f,size=4)
   for (i in 1:n.r) {
@@ -208,42 +246,3 @@ read.hist.prec.freq.next<-function(f,hist.header)
               hist.freq.vec=vec,
               hist.freq.mat=NULL))
 } # end of function read.hist.prec.freq.next
-
-#
-#read.hist.freq.tot<-function(hist.file)
-#{
-#  if (missing(hist.file)) stop("read.hist.freq: must provide a file name")
-#  if (!file.exists(hist.file)) stop("read.hist.freq: file not found")
-#  f<-file(hist.file,"rb")
-#  hist<-read.hist.freq.header(f)
-#  aux.bin.mat<-matrix(nrow=nc,ncol=nb)
-#  aux.bin.mat[]<-0
-#  killerloop<-T
-#  count<-0
-#  while (killerloop) {
-#    aux<-readBin(f,numeric(),size=4,n=4)
-#    i<-aux[1]
-#    if (i==0) break
-#    n.n0<-aux[4]
-#    pos.no0<-readBin(f,numeric(),size=4,n=n.n0)
-#    val.no0<-readBin(f,numeric(),size=4,n=n.n0)
-#    aux.bin.mat[i,pos.no0]<-val.no0
-#    count<-count+1
-#    if (count>100000000) break
-#  }
-#  close(f)
-#  if (count>100000000) return(F) 
-#  return(list(filetype=head[1],
-#              nx=head[2],ny=head[3],dx=head[4],dy=head[5],
-#              xmin=head[6],ymin=head[7],xmax=head[8],ymax=head[9],
-#              ncell=head[10],
-#              n.bins=head[11],
-#              filter.scale=head[12],
-#              hist.breaks=breaks,
-#              bin.vec=NULL,
-#              bin.mat=aux.bin.mat,
-#              eof=NULL))
-#} # end of function read.hist.freq
-
-
-

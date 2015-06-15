@@ -13,7 +13,7 @@ hist.mode<-function(freq,breaks) {
   mode.indx<-min(which(dens==max(dens,na.rm=T)))
   mode<-NA
   if (length(mode.indx)>0) 
-    mode<-mean(c(breaks[(mode.indx-1):mode.indx]))
+    mode<-mean(breaks[(mode.indx-1):mode.indx])
   return(list(value=mode,index=mode.indx))
 } # end of function hist.mode
 

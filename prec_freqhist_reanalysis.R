@@ -32,7 +32,9 @@ fh<-create.hist.prec.freq(date.begin=date.b.string,
                           input.filetype=1,
                           hist.file=ra.hist.prec,
                           hist.breaks=precipitation.breaks,
-                          lower.bound=precipitation.dailydef)
+                          lower.bound=precipitation.dailydef,
+                          mask.file=ob.mask.file,
+                          mask.filetype=ob.mask.filetype)
 #..............................................................................
 print("Exit with Success")
 quit(status=0)
