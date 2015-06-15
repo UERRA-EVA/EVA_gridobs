@@ -27,7 +27,7 @@ ra.input.filename<-"nora10_prec1d_"
 ob.input.path<-"/lustre/mnt/cristianl/seNorge2/PREC1d/gridded_dataset"
 ob.input.filename<-"seNorge_v2_0_PREC1d_grid_"
 # spatial aggregation parameter
-ob.filter.scale<-1
+ob.filter.scale<-101
 #..............................................................................
 # -- Precipitation parameters --
 precipitation.dailydef<-0.5 #mm
@@ -52,22 +52,22 @@ ks.alpha<-0.05
 #main.output.path<-"/home/cristianl/EVA_gridobs_output"
 main.output.path<-"/disk1/EVA_gridobs_output"
 # histograms (binary files)
-ra.hist.prec<-"nora10_PREC1d_hist_2014.dat"
-ob.hist.prec<-"seNorge2_PREC1d_hist_2014.dat"
+ra.hist.prec<-"nora10_PREC1d_hist_2014_f101.dat"
+ob.hist.prec<-"seNorge2_PREC1d_hist_2014_f101.dat"
 # descriptive statistics
-ra.output.mode.nc<-"nora10_PREC1d_hist_mode_2014.nc"
-ob.output.mode.nc<-"seNorge2_PREC1d_hist_mode_2014.nc"
-ra.output.mode.png<-"nora10_PREC1d_hist_mode_2014.png"
-ob.output.mode.png<-"seNorge2_PREC1d_hist_mode_2014.png"
+ra.output.mode.nc<-"nora10_PREC1d_hist_mode_2014_f101.nc"
+ob.output.mode.nc<-"seNorge2_PREC1d_hist_mode_2014_f101.nc"
+ra.output.mode.png<-"nora10_PREC1d_hist_mode_2014_f101.png"
+ob.output.mode.png<-"seNorge2_PREC1d_hist_mode_2014_f101.png"
 # score indexes (netcdf)
-score.output.mode.diff.nc<-"nora10_seNorge2_PREC1d_modediff_2014.nc"
-score.output.mode.RelErr.nc<-"nora10_seNorge2_PREC1d_moderelerr_2014.nc"
-score.output.pdf.nc<-"nora10_seNorge2_PREC1d_pdfoverscore_2014.nc"
-score.output.ksD.nc<-"nora10_seNorge2_PREC1d_ksd_2014.nc"
-score.output.ksT.nc<-"nora10_seNorge2_PREC1d_kstest_2014.nc"
+score.output.mode.diff.nc<-"nora10_seNorge2_PREC1d_modediff_2014_f101.nc"
+score.output.mode.RelErr.nc<-"nora10_seNorge2_PREC1d_moderelerr_2014_f101.nc"
+score.output.pdf.nc<-"nora10_seNorge2_PREC1d_pdfoverscore_2014_f101.nc"
+score.output.ksD.nc<-"nora10_seNorge2_PREC1d_ksd_2014_f101.nc"
+score.output.ksT.nc<-"nora10_seNorge2_PREC1d_kstest_2014_f101.nc"
 # score indexes (graphic)
-score.output.mode.diff.png<-"nora10_seNorge2_PREC1d_modediff_2014.png"
-score.output.mode.RelErr.png<-"nora10_seNorge2_PREC1d_moderelerr_2014.png"
-score.output.pdf.png<-"nora10_seNorge2_PREC1d_pdfoverscore_2014.png"
-score.output.ksD.png<-"nora10_seNorge2_PREC1d_ksd_2014.png"
-score.output.ksT.png<-"nora10_seNorge2_PREC1d_kstest_2014.png"
+score.output.mode.diff.png<-"nora10_seNorge2_PREC1d_modediff_2014_f101.png"
+score.output.mode.RelErr.png<-"nora10_seNorge2_PREC1d_moderelerr_2014_f101.png"
+score.output.pdf.png<-"nora10_seNorge2_PREC1d_pdfoverscore_2014_f101.png"
+score.output.ksD.png<-"nora10_seNorge2_PREC1d_ksd_2014_f101.png"
+score.output.ksT.png<-"nora10_seNorge2_PREC1d_kstest_2014_f101.png"

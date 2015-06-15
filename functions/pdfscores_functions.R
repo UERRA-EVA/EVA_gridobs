@@ -1,14 +1,20 @@
 #
 to_density<-function(freq,breaks) {
   # first bin is supposed to have freq=0, because breaks[1] < min value in data
+  # bin value marks the end of the aggregation interval
   breaks.width<-c(1,diff(breaks))
   dens<-freq/(breaks.width*sum(freq))
   return(dens)
 } # end of function to_density
 
-#+ Determines the locations (indexes) of the histogram max freq values (mode/s)
-hist.mode<-function(freq) {
-  return(which(freq==max(freq,na.rm=T)))
+#+ Determines the mode given the histogram frequencies
+hist.mode<-function(freq,breaks) {
+  dens<-to_density(freq,breaks)
+  mode.indx<-min(which(dens==max(dens,na.rm=T)))
+  mode<-NA
+  if (length(mode.indx)>0) 
+    mode<-mean(c(breaks[(mode.indx-1):mode.indx]))
+  return(list(value=mode,index=mode.indx))
 } # end of function hist.mode
 
 #
@@ -39,11 +45,9 @@ pdfs.overlapping.score<-function(freq1,freq2,breaks1,breaks2) {
 mode.diff<-function(freq1,freq2,breaks1,breaks2) {
   chk<-check.freq.break(freq1,freq2,breaks1,breaks2)
   if (!chk) return(0)
-  mode1.indx<-min(hist.mode(freq1))
-  mode2.indx<-min(hist.mode(freq2))
-  mode1<-mean(breaks1[mode1.indx:(mode1.indx+1)])
-  mode2<-mean(breaks2[mode2.indx:(mode2.indx+1)])
-  score<-mode1 - mode2
+  mode1<-hist.mode(freq1,breaks1)
+  mode2<-hist.mode(freq2,breaks2)
+  score<-mode1$value - mode2$value
   return(score)
 } # end of function mode.Diff
 
@@ -51,11 +55,9 @@ mode.diff<-function(freq1,freq2,breaks1,breaks2) {
 mode.RelErr.score<-function(freq1,freq2,breaks1,breaks2) {
   chk<-check.freq.break(freq1,freq2,breaks1,breaks2)
   if (!chk) return(0)
-  mode1.indx<-min(hist.mode(freq1))
-  mode2.indx<-min(hist.mode(freq2))
-  mode1<-mean(breaks1[mode1.indx:(mode1.indx+1)])
-  mode2<-mean(breaks2[mode2.indx:(mode2.indx+1)])
-  score<-(mode1/mode2-1)*100
+  mode1<-hist.mode(freq1,breaks1)
+  mode2<-hist.mode(freq2,breaks2)
+  score<-(mode1$value/mode2$value-1)*100
   return(score)
 } # end of function mode.RelErr.score
 
@@ -77,14 +79,39 @@ ks.test.wilks<-function(freq1,freq2,breaks1,breaks2,alpha) {
   return(ks)
 } # end of function ks.test.wilks
 
+#..............................................................................
 # GRID - GRID - GRID - GRID - GRID - GRID - GRID - GRID - GRID - GRID - GRID - 
-
+#------------------------------------------------------------------------------
 #
+hist.mode.grid.memsaver<-function(hist.file) {
+  if (missing(hist.file)) 
+    stop("hist.mode.grid.memsaver: must provide a file name")
+  if (!file.exists(hist.file)) 
+    stop("hist.mode.grid.memsaver: file not found")
+  f<-file(hist.file,"rb")
+  hist.header<-read.hist.prec.freq.header(f)
+  mode<-vector(mode="numeric",length=hist.header$grid.ncell)
+  mode[]<-NA
+  for (i in 1:hist.header$grid.ncell) {
+    if ((i%%100000)==0) print(paste(i,hist.header$grid.ncell,round(i/hist.header$grid.ncell,2)))
+    data<-read.hist.prec.freq.next(f,hist.header)
+    if (!is.null(data$file.eof)) {
+      if (data$file.eof) stop("unexpected eof")
+    }
+    if (!any(is.na(data$hist.freq.vec))) 
+      aux<-hist.mode(data$hist.freq.vec,data$hist.breaks)
+      mode[i]<-aux$value
+  }
+  close(f)
+  return( list(mode=mode,
+               hist.header=hist.header) )
+} # end of function hist.mode.grid.memsaver
+
 mode.diff.grid.memsaver<-function(hist.file1,hist.file2) {
   if (missing(hist.file1) | missing(hist.file2)) 
-    stop("pdf.overlapping.score.grid.memsaver: must provide a file name")
+    stop("mode.diff.grid.memsaver: must provide a file name")
   if (!file.exists(hist.file1) | !file.exists(hist.file2)) 
-    stop("pdf.overlapping.score.grid.memsaver: file not found")
+    stop("mode.diff.grid.memsaver: file not found")
   f1<-file(hist.file1,"rb")
   hist.header1<-read.hist.prec.freq.header(f1)
   f2<-file(hist.file2,"rb")
@@ -115,9 +142,9 @@ mode.diff.grid.memsaver<-function(hist.file1,hist.file2) {
 #
 mode.RelErr.score.grid.memsaver<-function(hist.file1,hist.file2) {
   if (missing(hist.file1) | missing(hist.file2)) 
-    stop("pdf.overlapping.score.grid.memsaver: must provide a file name")
+    stop("mode.RelErr.score.grid.memsaver: must provide a file name")
   if (!file.exists(hist.file1) | !file.exists(hist.file2)) 
-    stop("pdf.overlapping.score.grid.memsaver: file not found")
+    stop("mode.RelErr.score.grid.memsaver: file not found")
   f1<-file(hist.file1,"rb")
   hist.header1<-read.hist.prec.freq.header(f1)
   f2<-file(hist.file2,"rb")
@@ -173,12 +200,14 @@ pdf.overlapping.score.grid.memsaver<-function(hist.file1,hist.file2,rm.mode.diff
     if (!any(is.na(data1$hist.freq.vec)) & !any(is.na(data2$hist.freq.vec))) { 
       freq.1<-data1$hist.freq.vec
       freq.2<-data2$hist.freq.vec
+      breaks.1<-data1$hist.breaks
+      breaks.2<-data2$hist.breaks
       if (rm.mode.diff) {
-        mode1.indx<-min(hist.mode(freq1))
-        mode2.indx<-min(hist.mode(freq2))
-        max.mode.1or2<-which.max(c(mode1.indx,mode2.indx))
-        mdiff<-as.integer(abs(mode1.indx-mode2.indx))
-        if (mdiff!=0) {
+        mode1<-hist.mode(freq.1,breaks.1)
+        mode2<-hist.mode(freq.2,breaks.2)
+        if (mode1$value!=mode2$value) {
+          max.mode.1or2<-which.max(c(mode1$value,mode2$value))
+          mdiff<-as.integer(abs(mode1$index-mode2$index))
           if (max.mode.1or2==1) {
             freq.2<-c(rep(0,mdiff),freq.2[1:(length(freq.2)-mdiff)])
           } else {
@@ -188,8 +217,8 @@ pdf.overlapping.score.grid.memsaver<-function(hist.file1,hist.file2,rm.mode.diff
       }
       score[i]<-pdfs.overlapping.score(freq1=freq.1,
                                        freq2=freq.2,
-                                       breaks1=data1$hist.breaks,
-                                       breaks2=data2$hist.breaks)
+                                       breaks1=breaks.1,
+                                       breaks2=breaks.2)
     }
   }
   close(f1)
@@ -201,9 +230,9 @@ pdf.overlapping.score.grid.memsaver<-function(hist.file1,hist.file2,rm.mode.diff
 #
 ks.test.wilks.grid.memsaver<-function(hist.file1,hist.file2,alpha,rm.mode.diff=F) {
   if (missing(hist.file1) | missing(hist.file2)) 
-    stop("pdf.overlapping.score.grid.memsaver: must provide a file name")
+    stop("ks.test.wilks.grid.memsaver: must provide a file name")
   if (!file.exists(hist.file1) | !file.exists(hist.file2)) 
-    stop("pdf.overlapping.score.grid.memsaver: file not found")
+    stop("ks.test.wilks.grid.memsaver: file not found")
   f1<-file(hist.file1,"rb")
   hist.header1<-read.hist.prec.freq.header(f1)
   f2<-file(hist.file2,"rb")
@@ -221,12 +250,14 @@ ks.test.wilks.grid.memsaver<-function(hist.file1,hist.file2,alpha,rm.mode.diff=F
     if (!any(is.na(data1$hist.freq.vec)) & !any(is.na(data2$hist.freq.vec))) {
       freq.1<-data1$hist.freq.vec
       freq.2<-data2$hist.freq.vec
+      breaks.1<-data1$hist.breaks
+      breaks.2<-data2$hist.breaks
       if (rm.mode.diff) {
-        mode1.indx<-min(hist.mode(freq1))
-        mode2.indx<-min(hist.mode(freq2))
-        max.mode.1or2<-which.max(c(mode1.indx,mode2.indx))
-        mdiff<-as.integer(abs(mode1.indx-mode2.indx))
-        if (mdiff!=0) {
+        mode1<-hist.mode(freq.1,breaks.1)
+        mode2<-hist.mode(freq.2,breaks.2)
+        if (mode1$value!=mode2$value) {
+          max.mode.1or2<-which.max(c(mode1$value,mode2$value))
+          mdiff<-as.integer(abs(mode1$index-mode2$index))
           if (max.mode.1or2==1) {
             freq.2<-c(rep(0,mdiff),freq.2[1:(length(freq.2)-mdiff)])
           } else {
@@ -237,8 +268,8 @@ ks.test.wilks.grid.memsaver<-function(hist.file1,hist.file2,alpha,rm.mode.diff=F
       ks<-ks.test.wilks(freq1=freq.1,
                         freq2=freq.2,
                         alpha=alpha,
-                        breaks1=data1$hist.breaks,
-                        breaks2=data2$hist.breaks)
+                        breaks1=breaks.1,
+                        breaks2=breaks.2)
       Ds[i]<-ks$Ds
       Tst[i]<-ks$Test
       Thr[i]<-ks$Ds.thresh

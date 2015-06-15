@@ -49,7 +49,12 @@ Running the programs (examples):
     ```
     R --vanilla your_configuration_file < prec_freqhist_gridobs.R
     ```
-3. Compute the difference between modes and relative precipitation biases:
+3. Get the mode of reanalysis and gridded observation PDF:
+
+  ```
+  R --vanilla your_configuration_file < mode.R 
+  ```
+4. Compute the difference between modes and relative precipitation biases:
  
   ```
   R --vanilla your_configuration_file < modediff.R 
@@ -57,12 +62,12 @@ Running the programs (examples):
   ```
   R --vanilla your_configuration_file < modeRelErrscores.R 
   ```
-4. Compute the PDF overlapping skill-score:
+5. Compute the PDF overlapping skill-score:
  
   ```
   R --vanilla your_configuration_file < pdfscores.R 
   ```
-5. K-S test:
+6. K-S test:
  
   ```
   R --vanilla your_configuration_file < KSscores.R 
