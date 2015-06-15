@@ -7,7 +7,8 @@ date.b.string<-"2014.01.02"
 date.e.string<-"2014.12.30"
 #..............................................................................
 # local path to external libraries
-local.path.to.extlib<-"/disk1/projects/EVA_gridobs"
+#local.path.to.extlib<-"/disk1/projects/EVA_gridobs"
+local.path.to.extlib<-"/home/cristianl/projects/EVA_gridobs/functions"
 #.......................i.......................................................
 # -- Re-analysis input dataset --
 # netcdf input files are expected to be:

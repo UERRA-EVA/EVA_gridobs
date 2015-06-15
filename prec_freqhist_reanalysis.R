@@ -23,14 +23,16 @@ if (!file.exists(config.file)) {
 # read config parameters
 source(config.file)
 # load external functions
-source(paste(local.path.to.extlib,"/freqhist_function.R",sep=""))
+source(paste(local.path.to.extlib,"/freqhist_functions.R",sep=""))
+# set output file names
+f.ra.hist.prec<-paste(main.output.path,"/",ra.hist.prec,sep="")
 #..............................................................................
 fh<-create.hist.prec.freq(date.begin=date.b.string,
                           date.end=date.e.string,
                           input.path=ra.input.path,
                           input.filename=ra.input.filename,
                           input.filetype=1,
-                          hist.file=ra.hist.prec,
+                          hist.file=f.ra.hist.prec,
                           hist.breaks=precipitation.breaks,
                           lower.bound=precipitation.dailydef,
                           mask.file=ob.mask.file,

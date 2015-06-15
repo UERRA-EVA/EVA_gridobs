@@ -31,7 +31,7 @@ get.info.from.nc<-function(nc,filetype) {
     return(list(dx=dx,dy=dy,
                 nx=nx,ny=ny,
                 ex.xmin=ex.xmin,ex.xmax=ex.xmax,
-                ey.ymin=ey.ymin,ex.ymax=ex.ymax,
+                ex.ymin=ex.ymin,ex.ymax=ex.ymax,
                 projstr=projstr))
 } # end function get.info.from.nc
 
@@ -95,8 +95,8 @@ create.hist.prec.freq<-function(date.begin,date.end,
 # Define raster variable "r"
     r.mask <-raster(ncol=nc.info$nx, nrow=nc.info$ny,
                     xmn=nc.info$ex.xmin, xmx=nc.info$ex.xmax,
-                    ymn=nc.info$ex.ymin, ymx=nc.info$ex.ymax
-                    crs=projstr)
+                    ymn=nc.info$ex.ymin, ymx=nc.info$ex.ymax,
+                    crs=nc.info$projstr)
     r.mask[]<-NA
     data<-get.var.ncdf(nc)
     close.ncdf(nc)
@@ -105,14 +105,14 @@ create.hist.prec.freq<-function(date.begin,date.end,
   #ext<-error_exit(paste("Reanalysis files not found \n",sep=""))
   # set raster files for reanalysis data (ra) and gridded observations (ob)
   nc <- open.ncdf(file)
-  nc.info<-get.info.from.nc(nc,mask.filetype)
+  nc.info<-get.info.from.nc(nc,input.filetype)
   close.ncdf(nc)
   nchar.projstr<-nchar(nc.info$projstr)
 # Define raster variable "r"
   r <-raster(ncol=nc.info$nx, nrow=nc.info$ny,
              xmn=nc.info$ex.xmin, xmx=nc.info$ex.xmax,
              ymn=nc.info$ex.ymin, ymx=nc.info$ex.ymax,
-             crs=projstr)
+             crs=nc.info$projstr)
   r[]<-NA
   n.r<-ncell(r)
   # extract information from the grid
