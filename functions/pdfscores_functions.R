@@ -98,9 +98,10 @@ hist.mode.grid.memsaver<-function(hist.file) {
     if (!is.null(data$file.eof)) {
       if (data$file.eof) stop("unexpected eof")
     }
-    if (!any(is.na(data$hist.freq.vec))) 
+    if (!any(is.na(data$hist.freq.vec))) { 
       aux<-hist.mode(data$hist.freq.vec,data$hist.breaks)
       mode[i]<-aux$value
+    }
   }
   close(f)
   return( list(mode=mode,

@@ -6,10 +6,10 @@
 
 get.info.from.nc<-function(nc,filetype) {
     if (filetype==1) {
-      dx<-nc$dim$easting$vals[2]-nc$dim$easting$vals[1]
+      dx<-abs(nc$dim$easting$vals[2]-nc$dim$easting$vals[1])
       ex.xmin<-min(nc$dim$easting$vals)-dx/2
       ex.xmax<-max(nc$dim$easting$vals)+dx/2
-      dy<-nc$dim$northing$vals[2]-nc$dim$northing$vals[1]
+      dy<-abs(nc$dim$northing$vals[2]-nc$dim$northing$vals[1])
       ex.ymin<-min(nc$dim$northing$vals)-dy/2
       ex.ymax<-max(nc$dim$northing$vals)+dy/2
       nx<-nc$dim$easting$len
@@ -17,15 +17,26 @@ get.info.from.nc<-function(nc,filetype) {
       aux<-att.get.ncdf(nc,"layer","projection")
       projstr<-aux$value
     } else if (filetype==2) {
-      dx<-nc$dim$X$vals[2]-nc$dim$X$vals[1]
+      dx<-abs(nc$dim$X$vals[2]-nc$dim$X$vals[1])
       ex.xmin<-min(nc$dim$X$vals)-dx/2
       ex.xmax<-max(nc$dim$X$vals)+dx/2
-      dy<-nc$dim$Y$vals[2]-nc$dim$Y$vals[1]
+      dy<-abs(nc$dim$Y$vals[2]-nc$dim$Y$vals[1])
       ex.ymin<-min(nc$dim$Y$vals)-dy/2
       ex.ymax<-max(nc$dim$Y$vals)+dy/2
       nx<-nc$dim$X$len
       ny<-nc$dim$Y$len
       aux<-att.get.ncdf(nc,"UTM_Zone_33","proj4")
+      projstr<-aux$value
+    } else if (filetype==3) {
+      dx<-abs(nc$dim$easting$vals[2]-nc$dim$easting$vals[1])
+      ex.xmin<-min(nc$dim$easting$vals)-dx/2
+      ex.xmax<-max(nc$dim$easting$vals)+dx/2
+      dy<-abs(nc$dim$northing$vals[2]-nc$dim$northing$vals[1])
+      ex.ymin<-min(nc$dim$northing$vals)-dy/2
+      ex.ymax<-max(nc$dim$northing$vals)+dy/2
+      nx<-nc$dim$easting$len
+      ny<-nc$dim$northing$len
+      aux<-att.get.ncdf(nc,"elevation","projection")
       projstr<-aux$value
     }
     return(list(dx=dx,dy=dy,
@@ -46,6 +57,7 @@ create.hist.prec.freq<-function(date.begin,date.end,
 # filetypes:
 # 1: NORA10
 # 2: seNorge2
+# 3: seNorge2_dem
 # ---
 # breaks[1] must be strictly > min value expected in data; 
 # breaks[last] must be strictly < min value expected in data;
@@ -91,7 +103,6 @@ create.hist.prec.freq<-function(date.begin,date.end,
     mask.flag<-T
     nc <- open.ncdf(mask.file)
     nc.info<-get.info.from.nc(nc,mask.filetype)
-    close.ncdf(nc)
 # Define raster variable "r"
     r.mask <-raster(ncol=nc.info$nx, nrow=nc.info$ny,
                     xmn=nc.info$ex.xmin, xmx=nc.info$ex.xmax,
@@ -105,7 +116,7 @@ create.hist.prec.freq<-function(date.begin,date.end,
   #ext<-error_exit(paste("Reanalysis files not found \n",sep=""))
   # set raster files for reanalysis data (ra) and gridded observations (ob)
   nc <- open.ncdf(file)
-  nc.info<-get.info.from.nc(nc,input.filetype)
+  if (!exists("nc.info")) nc.info<-get.info.from.nc(nc,input.filetype)
   close.ncdf(nc)
   nchar.projstr<-nchar(nc.info$projstr)
 # Define raster variable "r"

@@ -8,8 +8,8 @@ date.e.string<-"2014.12.30"
 #..............................................................................
 # local path to external libraries
 #local.path.to.extlib<-"/disk1/projects/EVA_gridobs"
-local.path.to.extlib<-"/home/cristianl/projects/EVA_gridobs/functions"
-#.......................i.......................................................
+local.path.to.extlib<-"/home/cristianl/projects/EVA_gridobs"
+#..............................................................................
 # -- Re-analysis input dataset --
 # netcdf input files are expected to be:
 # (1) on the same coordinate reference system and grid as the observations
@@ -31,8 +31,8 @@ ob.input.filename<-"seNorge_v2_0_PREC1d_grid_"
 ob.filter.scale<-1
 #..............................................................................
 # -- Mask file
-ob.mask.file<-"/home/cristianl/seNorge2/geoinfo/seNorge2_dem_UTM33.nc"
-ob.mask.filetype<-2
+ob.mask.file<-"/home/cristianl/projects/seNorge2/geoinfo/seNorge2_dem_UTM33.nc"
+ob.mask.filetype<-3
 #..............................................................................
 # -- Precipitation parameters --
 precipitation.dailydef<-0.5 #mm

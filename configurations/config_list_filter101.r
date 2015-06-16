@@ -7,7 +7,7 @@ date.b.string<-"2014.01.02"
 date.e.string<-"2014.12.30"
 #..............................................................................
 # local path to external libraries
-local.path.to.extlib<-"/disk1/projects/EVA_gridobs"
+local.path.to.extlib<-"/home/cristianl/projects/EVA_gridobs"
 #.......................i.......................................................
 # -- Re-analysis input dataset --
 # netcdf input files are expected to be:
@@ -30,8 +30,8 @@ ob.input.filename<-"seNorge_v2_0_PREC1d_grid_"
 ob.filter.scale<-101
 #..............................................................................
 # -- Mask file
-ob.mask.file<-"/home/cristianl/seNorge2/geoinfo/seNorge2_dem_UTM33.nc"
-ob.mask.filetype<-2
+ob.mask.file<-"/home/cristianl/projects/seNorge2/geoinfo/seNorge2_dem_UTM33.nc"
+ob.mask.filetype<-3
 #..............................................................................
 # -- Precipitation parameters --
 precipitation.dailydef<-0.5 #mm
@@ -53,8 +53,8 @@ precipitation.breaks<-c(0.499,1.5:30.5,49.5,70.5,99.5,150.5,199.5,500.5)
 ks.alpha<-0.05
 #..............................................................................
 # -- Output --
-#main.output.path<-"/home/cristianl/EVA_gridobs_output"
-main.output.path<-"/disk1/EVA_gridobs_output"
+main.output.path<-"/home/cristianl/EVA_gridobs_output"
+#main.output.path<-"/disk1/EVA_gridobs_output"
 # histograms (binary files)
 ra.hist.prec<-"nora10_PREC1d_hist_2014_f101.dat"
 ob.hist.prec<-"seNorge2_PREC1d_hist_2014_f101.dat"

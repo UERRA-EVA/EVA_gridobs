@@ -23,7 +23,7 @@ if (!file.exists(config.file)) {
 # read config parameters
 source(config.file)
 # load external functions
-source(paste(local.path.to.extlib,"/freqhist_functions.R",sep=""))
+source(paste(local.path.to.extlib,"/functions/freqhist_functions.R",sep=""))
 # set output file names
 f.ra.hist.prec<-paste(main.output.path,"/",ra.hist.prec,sep="")
 #..............................................................................
