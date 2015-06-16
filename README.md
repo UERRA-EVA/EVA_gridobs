@@ -17,7 +17,7 @@ Developed and tested for daily precipitation
 - [ ] Fractional skill-score
 - [ ] Optical-flow
 
-[1] Mayer, S. et al. Identifying added value in high-resolution climate simulations over Scandinavia. Tellus A, [S.l.], feb. 2015. ISSN 1600-0870. Available at: <http://www.tellusa.net/index.php/tellusa/article/view/24941CachedStephanie>. Date accessed: 12 Jun. 2015. doi:http://dx.doi.org/10.3402/tellusa.v67.24941.)
+[1] Mayer, S. et al. (2015). Identifying added value in high-resolution climate simulations over Scandinavia. Tellus A
 
 [2] Wilks, D. S. (2011). Statistical methods in the atmospheric sciences (Vol. 100). Academic press.
 
