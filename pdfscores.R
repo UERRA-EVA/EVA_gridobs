@@ -36,7 +36,7 @@ f.ob.hist.prec<-paste(main.output.path,"/",ob.hist.prec,sep="")
 pdfscore<-pdf.overlapping.score.grid.memsaver(hist.file1=f.ra.hist.prec,hist.file2=f.ob.hist.prec)
 # output session
 aux<-write.score(header=pdfscore$hist.header,score=pdfscore$pdfscore,file.out=f.score.output.pdf.nc)
-aux<-plot.pdf.overlapping.score(header=pdfscore$hist.header,pdfscore=pdfscore$pdfscore,file.out=f.score.output.pdf.png)
+#aux<-plot.pdf.overlapping.score(header=pdfscore$hist.header,pdfscore=pdfscore$pdfscore,file.out=f.score.output.pdf.png)
 # exit
 print("Exit with Success")
 quit(status=0)

@@ -241,6 +241,9 @@ ks.test.wilks.grid.memsaver<-function(hist.file1,hist.file2,alpha,rm.mode.diff=F
   Ds<-vector(mode="numeric",length=hist.header1$grid.ncell)
   Tst<-vector(mode="numeric",length=hist.header1$grid.ncell)
   Thr<-vector(mode="numeric",length=hist.header1$grid.ncell)
+  Ds[]<-NA
+  Tst[]<-NA
+  Thr[]<-NA
   for (i in 1:hist.header1$grid.ncell) {
     if ((i%%100000)==0) print(paste(i,hist.header1$grid.ncell,round(i/hist.header1$grid.ncell,2)))
     data1<-read.hist.prec.freq.next(f1,hist.header1)
