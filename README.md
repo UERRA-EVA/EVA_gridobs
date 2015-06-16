@@ -38,7 +38,7 @@ Installation
 Running the programs (examples):
 --------------------------------
 1. Edit configuration file according to the instructions reported in .../etc/config\_list.r
-2. Create histograms approximating the frequency distribution of precipitation values
+2. Create histograms approximating the frequency distribution of precipitation values (note: see in the directory "data" for test data with frequency distributions)
   * for the reanalysis
 
     ```
